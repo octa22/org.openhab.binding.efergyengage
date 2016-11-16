@@ -310,10 +310,12 @@ public class EfergyEngageBinding extends AbstractActiveBinding<EfergyEngageBindi
             //read value
             parser = new JsonParser();
             JsonObject jobject = parser.parse(body.toString()).getAsJsonObject();
-            instant = jobject.get("reading").getAsInt();
-            logger.debug("Efergy reading: " + instant);
-            measurement.setValue(instant);
-            measurement.setMilis(jobject.get("last_reading_time").getAsLong());
+            if (jobject != null && jobject.get("reading") != null) {
+                instant = jobject.get("reading").getAsInt();
+                logger.debug("Efergy reading: " + instant);
+                measurement.setValue(instant);
+                measurement.setMilis(jobject.get("last_reading_time").getAsLong());
+            }
         } catch (MalformedURLException e) {
             logger.error("The URL '" + url + "' is malformed: " + e.toString());
         } catch (Exception e) {
@@ -343,12 +345,14 @@ public class EfergyEngageBinding extends AbstractActiveBinding<EfergyEngageBindi
 
             //read value
             JsonObject jobject = parser.parse(body.toString()).getAsJsonObject();
-            String energy = jobject.get("sum").getAsString();
-            String units = jobject.get("units").getAsString();
+            if (jobject != null && jobject.get("sum") != null && jobject.get("units") != null) {
+                String energy = jobject.get("sum").getAsString();
+                String units = jobject.get("units").getAsString();
 
-            logger.debug("Efergy reading for " + period + " period: " + energy + " " + units);
-            measurement.setValue(Float.valueOf(energy.trim()).floatValue());
-            measurement.setUnit(units);
+                logger.debug("Efergy reading for " + period + " period: " + energy + " " + units);
+                measurement.setValue(Float.valueOf(energy.trim()).floatValue());
+                measurement.setUnit(units);
+            }
         } catch (MalformedURLException e) {
             logger.error("The URL '" + url + "' is malformed: " + e.toString());
         } catch (Exception e) {
