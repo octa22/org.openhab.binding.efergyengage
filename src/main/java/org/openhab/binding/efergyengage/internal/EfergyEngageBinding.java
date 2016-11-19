@@ -11,6 +11,8 @@ package org.openhab.binding.efergyengage.internal;
 import org.apache.commons.lang.StringUtils;
 import org.openhab.binding.efergyengage.EfergyEngageBindingProvider;
 import org.openhab.core.binding.AbstractActiveBinding;
+import org.openhab.core.items.ItemNotFoundException;
+import org.openhab.core.items.ItemRegistry;
 import org.openhab.core.library.types.DateTimeType;
 import org.openhab.core.library.types.DecimalType;
 import org.openhab.core.library.types.StringType;
@@ -54,7 +56,7 @@ public class EfergyEngageBinding extends AbstractActiveBinding<EfergyEngageBindi
      * was called.
      */
     private BundleContext bundleContext;
-
+    private ItemRegistry itemRegistry;
 
     /**
      * the refresh interval which is used to poll values from the EfergyEngage
@@ -147,21 +149,13 @@ public class EfergyEngageBinding extends AbstractActiveBinding<EfergyEngageBindi
         // should be reset when activating this binding again
     }
 
-
-    /**
-     * TODO
-     */
-    protected String getEmail() {
-        return email;
+    public void setItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = itemRegistry;
     }
 
-    /**
-     * TODO
-     */
-    protected String getPassword() {
-        return password;
+    public void unsetItemRegistry(ItemRegistry itemRegistry) {
+        this.itemRegistry = null;
     }
-
 
     /**
      * @{inheritDoc}
@@ -201,56 +195,63 @@ public class EfergyEngageBinding extends AbstractActiveBinding<EfergyEngageBindi
         for (final EfergyEngageBindingProvider provider : providers) {
             for (final String itemName : provider.getItemNames()) {
                 String type = provider.getItemType(itemName);
-                float lastVal = provider.getItemValue(itemName);
+                State newValue = null;
+                State oldValue = null;
+                try {
+                    oldValue = itemRegistry.getItem(itemName).getState();
 
-                switch (type) {
-                    case INSTANT:
-                        if (instant == null)
-                            instant = readInstant();
-                        if (lastVal != instant.getValue()) {
-                            eventPublisher.postUpdate(itemName, new DecimalType(instant.getValue()));
-                            provider.setItemValue(itemName, instant.getValue());
-                        }
-                        break;
-                    case LAST_MEASUREMENT:
-                        if (instant == null)
-                            instant = readInstant();
-                        Calendar cal = Calendar.getInstance();
-                        cal.setTime(new java.util.Date(instant.getMilis()));
-                        eventPublisher.postUpdate(itemName, new DateTimeType(cal));
-                        break;
-                    case DAY_TOTAL:
-                        if (dayTotal == null)
-                            dayTotal = readEnergy("day");
-                        if (lastVal != dayTotal.getValue()) {
-                            eventPublisher.postUpdate(itemName, new StringType((dayTotal.getValue() + " " + dayTotal.getUnit())));
-                            provider.setItemValue(itemName, dayTotal.getValue());
-                        }
-                        break;
-                    case WEEK_TOTAL:
-                        if (weekTotal == null)
-                            weekTotal = readEnergy("week");
-                        if (lastVal != weekTotal.getValue()) {
-                            eventPublisher.postUpdate(itemName, new StringType((weekTotal.getValue() + " " + weekTotal.getUnit())));
-                            provider.setItemValue(itemName, weekTotal.getValue());
-                        }
-                        break;
-                    case MONTH_TOTAL:
-                        if (monthTotal == null)
-                            monthTotal = readEnergy("month");
-                        if (lastVal != monthTotal.getValue()) {
-                            eventPublisher.postUpdate(itemName, new StringType((monthTotal.getValue() + " " + monthTotal.getUnit())));
-                            provider.setItemValue(itemName, monthTotal.getValue());
-                        }
-                        break;
-                    case YEAR_TOTAL:
-                        if (yearTotal == null)
-                            yearTotal = readEnergy("year");
-                        if (lastVal != yearTotal.getValue()) {
-                            eventPublisher.postUpdate(itemName, new StringType((yearTotal.getValue() + " " + yearTotal.getUnit())));
-                            provider.setItemValue(itemName, yearTotal.getValue());
-                        }
-                        break;
+
+                    switch (type) {
+                        case INSTANT:
+                            if (instant == null)
+                                instant = readInstant();
+                            newValue = new DecimalType(instant.getValue());
+                            if (!oldValue.equals(newValue)) {
+                                eventPublisher.postUpdate(itemName, newValue);
+                            }
+                            break;
+                        case LAST_MEASUREMENT:
+                            if (instant == null)
+                                instant = readInstant();
+                            Calendar cal = Calendar.getInstance();
+                            cal.setTime(new java.util.Date(instant.getMilis()));
+                            eventPublisher.postUpdate(itemName, new DateTimeType(cal));
+                            break;
+                        case DAY_TOTAL:
+                            if (dayTotal == null)
+                                dayTotal = readEnergy("day");
+                            newValue = new StringType((dayTotal.getValue() + " " + dayTotal.getUnit()));
+                            if (!oldValue.equals(newValue)) {
+                                eventPublisher.postUpdate(itemName, newValue);
+                            }
+                            break;
+                        case WEEK_TOTAL:
+                            if (weekTotal == null)
+                                weekTotal = readEnergy("week");
+                            newValue = new StringType((weekTotal.getValue() + " " + weekTotal.getUnit()));
+                            if (!oldValue.equals(newValue)) {
+                                eventPublisher.postUpdate(itemName, newValue);
+                            }
+                            break;
+                        case MONTH_TOTAL:
+                            if (monthTotal == null)
+                                monthTotal = readEnergy("month");
+                            newValue = new StringType((monthTotal.getValue() + " " + monthTotal.getUnit()));
+                            if (!oldValue.equals(newValue)) {
+                                eventPublisher.postUpdate(itemName, newValue);
+                            }
+                            break;
+                        case YEAR_TOTAL:
+                            if (yearTotal == null)
+                                yearTotal = readEnergy("year");
+                            newValue = new StringType((yearTotal.getValue() + " " + yearTotal.getUnit()));
+                            if (!oldValue.equals(newValue)) {
+                                eventPublisher.postUpdate(itemName, newValue);
+                            }
+                            break;
+                    }
+                } catch (ItemNotFoundException e) {
+                    logger.error("Cannot find item " + itemName + " in item registry!");
                 }
             }
         }

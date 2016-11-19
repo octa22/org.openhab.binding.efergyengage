@@ -16,8 +16,4 @@ import org.openhab.core.binding.BindingProvider;
  */
 public interface EfergyEngageBindingProvider extends BindingProvider {
     String getItemType(String itemName);
-
-    float getItemValue(String itemName);
-    void setItemValue(String itemName, float value);
-
 }

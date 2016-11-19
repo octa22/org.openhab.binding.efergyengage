@@ -69,19 +69,6 @@ public class EfergyEngageGenericBindingProvider extends AbstractGenericBindingPr
         return config != null ? (config.getType()) : null;
     }
 
-    @Override
-    public float getItemValue(String itemName) {
-        final EfergyEngageBindingConfig config = (EfergyEngageBindingConfig) this.bindingConfigs.get(itemName);
-        return config != null ? (config.getValue()) : -1;
-    }
-
-    @Override
-    public void setItemValue(String itemName, float value) {
-        final EfergyEngageBindingConfig config = (EfergyEngageBindingConfig) this.bindingConfigs.get(itemName);
-        if( config != null)
-            config.setValue(value);
-    }
-
     /**
      * This is a helper class holding binding specific configuration details
      *
@@ -92,11 +79,6 @@ public class EfergyEngageGenericBindingProvider extends AbstractGenericBindingPr
 
         // put member fields here which holds the parsed values
         private String type;
-        private float value = -1;
-
-        public void setValue(float value) {
-            this.value = value;
-        }
 
         EfergyEngageBindingConfig(String type) {
             this.type = type;
@@ -105,10 +87,6 @@ public class EfergyEngageGenericBindingProvider extends AbstractGenericBindingPr
         public String getType() {
             return type;
         }
-        public float getValue() {
-            return value;
-        }
-
     }
 
 
