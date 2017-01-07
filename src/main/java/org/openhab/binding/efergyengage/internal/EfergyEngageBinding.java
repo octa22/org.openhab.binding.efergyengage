@@ -89,8 +89,7 @@ public class EfergyEngageBinding extends AbstractActiveBinding<EfergyEngageBindi
 
 
         readConfiguration(configuration);
-        login();
-        setProperlyConfigured(token != "");
+        setProperlyConfigured(true);
     }
 
     private void readConfiguration(final Map<String, Object> configuration) {
@@ -184,6 +183,12 @@ public class EfergyEngageBinding extends AbstractActiveBinding<EfergyEngageBindi
         if (!bindingsExist()) {
             logger.debug("There is no existing Efergy Engage binding configuration => refresh cycle aborted!");
             return;
+        }
+
+        if( token.equals("")) {
+            login();
+            if( token.equals(""))
+                return;
         }
 
         EfergyEngageMeasurement instant = null;
