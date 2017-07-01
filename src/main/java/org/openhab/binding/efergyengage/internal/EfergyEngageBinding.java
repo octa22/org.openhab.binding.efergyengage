@@ -8,6 +8,8 @@
  */
 package org.openhab.binding.efergyengage.internal;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.lang.StringUtils;
 import org.openhab.binding.efergyengage.EfergyEngageBindingProvider;
 import org.openhab.core.binding.AbstractActiveBinding;
@@ -30,9 +32,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Calendar;
 import java.util.Map;
-
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import static org.openhab.binding.efergyengage.internal.EfergyEngageConstants.*;
 
@@ -124,7 +123,9 @@ public class EfergyEngageBinding extends AbstractActiveBinding<EfergyEngageBindi
      */
     public void modified(final Map<String, Object> configuration) {
         // update the internal configuration accordingly
-        readConfiguration(configuration);
+        if (configuration != null) {
+            readConfiguration(configuration);
+        }
     }
 
     /**
@@ -185,9 +186,9 @@ public class EfergyEngageBinding extends AbstractActiveBinding<EfergyEngageBindi
             return;
         }
 
-        if( token.equals("")) {
+        if (token.equals("")) {
             login();
-            if( token.equals(""))
+            if (token.equals(""))
                 return;
         }
 
